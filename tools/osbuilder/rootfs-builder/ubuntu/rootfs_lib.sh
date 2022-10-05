@@ -16,7 +16,7 @@ bootstrap=Ubuntu
 [Ubuntu]
 source=$REPO_URL
 keyring=ubuntu-keyring
-suite=focal
+suite=jammy
 packages=$PACKAGES $EXTRA_PKGS
 EOF
 	multistrap -a "$DEB_ARCH" -d "$rootfs_dir" -f "$multistrap_conf"
