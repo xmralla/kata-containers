@@ -1,5 +1,6 @@
 FROM scratch
 ARG lnx_ver=5.15.26-nvidia-gpu
+ARG drv_ver=510.85.02
 
 COPY rootfs-ubuntu /
 
@@ -8,8 +9,10 @@ RUN for f in `grep ExecStart.*agetty /usr/lib/systemd/system/*service -l`; do \
     done
 
 COPY linux*.deb                 /boot/
-COPY /NVIDIA-Linux-x86_64-*.run /boot/
 
+COPY https://download.nvidia.com/XFree86/Linux-x86_64/${drv_ver}/NVIDIA-Linux-x86_64-${drv_ver}-no-compat32.run /boot/
+
+ENV IGNORE_CC_MISMATCH=1
 RUN cd /boot && mkdir -p /var/log && dpkg -i linux*deb
 RUN ls -la /boot && dpkg -l
 RUN cd /boot && bash NVIDIA-Linux-x86_64-*.run -a -q \

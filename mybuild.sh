@@ -25,7 +25,7 @@ fi
 
 if [ "$build_rootfs" = "yes" ]; then
     pushd tools/osbuilder/rootfs-builder
-    #./myrootfs.sh
+    ./myrootfs.sh
 
     mv ../../packaging/kernel/linux-*.deb .
 
