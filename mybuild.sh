@@ -2,8 +2,11 @@
 
 lnx_ver=5.15.26
 build_kernel="no"
-build_rootfs="yes"
+build_rootfs="no"
 build_image="yes"
+distro="ubuntu"
+AGENT_INIT="no"
+EXTRA_PKGS="htop pciutils kmod g++-11 gcc-11 make iproute2 net-tools coreutils less curl gnupg"
 
 if [ "$build_kernel" = "yes" ]; then
     pushd tools/packaging/kernel
@@ -23,13 +26,13 @@ if [ "$build_kernel" = "yes" ]; then
     popd
 fi
 
+img=ubuntu2204-gpu
+
 if [ "$build_rootfs" = "yes" ]; then
     pushd tools/osbuilder/rootfs-builder
+    
     ./myrootfs.sh
-
     mv ../../packaging/kernel/linux-*.deb .
-
-    img=ubuntu2204-gpu
 
     sudo docker build -t localhost:32000/$img --build-arg lnx_ver="${lnx_ver}-nvidia-gpu" .
     docker run localhost:32000/$img bash
@@ -50,6 +53,14 @@ fi
 
 if [ "$build_image" = "yes" ]; then
     pushd tools/osbuilder/image-builder
+    echo "Building image for $img"
     sudo ./image_builder.sh ../rootfs-builder/$img
+
+    name=""
+    if [ "$AGENT_INIT" = "no" ]; then
+        name="-systemd"
+    fi
+    img="kata-containers-nvidia-gpu${name}.img"
+    sudo install -o root -g root -m 0640 -D kata-containers.img "/usr/share/kata-containers/${img}"
     popd
 fi
